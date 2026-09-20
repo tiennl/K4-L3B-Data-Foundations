@@ -53,25 +53,65 @@
 
 ### Phân tích đường cơ sở (Baseline Analysis)
 
-Chạy `ChunkingStrategyComparator().compare()` trên 2-3 tài liệu:
+Chạy `ChunkingStrategyComparator().compare(text, chunk_size=300)` trên 3 tài liệu (nội dung sau front matter, không tính khối YAML):
 
 | Tài liệu | Chiến lược (Strategy) | Số lượng Chunk | Độ dài trung bình | Giữ được ngữ cảnh không? |
 |-----------|----------|-------------|------------|-------------------|
-| | FixedSizeChunker (`fixed_size`) | | | |
-| | SentenceChunker (`by_sentences`) | | | |
-| | RecursiveChunker (`recursive`) | | | |
+| `warranty-seller-general-tiki` (3304 ký tự) | FixedSizeChunker (`fixed_size`) | 13 | 281.8 | Không — cắt cứng theo ký tự, có thể đứt giữa câu/giữa "Câu hỏi — trả lời" |
+| `warranty-seller-general-tiki` | SentenceChunker (`by_sentences`) | 11 | 298.0 | Một phần — giữ trọn câu, nhưng 1 "Câu hỏi" gốc thường gồm 2-4 câu nên vẫn có thể bị tách sang 2 chunk |
+| `warranty-seller-general-tiki` | RecursiveChunker (`recursive`) | 19 | 172.0 | Một phần — ưu tiên tách theo `\n\n`/`\n` nên bám sát đoạn văn hơn fixed-size, nhưng vẫn không biết ranh giới "Câu X." là một đơn vị |
+| `warranty-seller-fbt-tiki` (1641 ký tự) | FixedSizeChunker | 6 | 298.5 | Không |
+| `warranty-seller-fbt-tiki` | SentenceChunker | 5 | 326.0 | Một phần |
+| `warranty-seller-fbt-tiki` | RecursiveChunker | 9 | 180.7 | Một phần |
+| `warranty-buyer-shopee` (2897 ký tự) | FixedSizeChunker | 11 | 290.6 | Không |
+| `warranty-buyer-shopee` | SentenceChunker | 9 | 320.0 | Một phần |
+| `warranty-buyer-shopee` | RecursiveChunker | 14 | 205.2 | Một phần |
 
 ### Chiến lược của từng thành viên
 
 > Mỗi thành viên điền một khối dưới đây (copy thêm nếu nhóm có nhiều hơn 3 người).
 
-**Thành viên 1 — [Tên]**
-- **Loại chiến lược:** [FixedSize / Sentence / Recursive / custom]
-- **Mô tả & lý do chọn cho chủ đề này:** *(2-3 câu)*
-- **Code snippet (nếu custom):**
+**Thành viên 1 — Ngô Lê Thuỳ Tiên**
+- **Loại chiến lược:** custom — `HeadingChunker` (chunk theo tiêu đề `##`/`###`), đáp ứng yêu cầu bắt buộc của K4_VARIANT.md ("ít nhất một thành viên chunk theo tiêu đề/mục của điều khoản/chính sách gốc").
+- **Mô tả & lý do chọn cho chủ đề này:** Mọi file trong `data/warranty-policy/` đều là Markdown có `##` đánh dấu rõ từng điều khoản gốc (`## Câu 4. ...`, `## II. Quy trình xử lý bảo hành FBT`). Một câu hỏi benchmark gần như luôn ứng với đúng **một** heading — chunk theo heading giữ nguyên vẹn cả điều kiện lẫn hậu quả của điều khoản đó trong cùng 1 chunk, trong khi 3 chiến lược có sẵn (dựa trên ký tự/câu) có thể cắt đứt chúng ra hai chunk khác nhau nếu ranh giới rơi giữa chừng.
+- **Code snippet:**
 ```python
-# Dán mã nguồn (implementation) vào đây
+# scripts/heading_chunker.py
+class HeadingChunker:
+    """Chunk theo tiêu đề `##`/`###` — mỗi điều khoản gốc thành 1 chunk."""
+
+    def __init__(self, heading_pattern: str = r"^#{2,3}\s+.+$") -> None:
+        self.heading_re = re.compile(heading_pattern, re.MULTILINE)
+
+    def chunk(self, text: str) -> list[str]:
+        if not text or not text.strip():
+            return []
+        matches = list(self.heading_re.finditer(text))
+        if not matches:
+            return [text.strip()]
+
+        chunks: list[str] = []
+        preamble = text[: matches[0].start()].strip()
+        if preamble:
+            chunks.append(preamble)
+        for i, match in enumerate(matches):
+            start = match.start()
+            end = matches[i + 1].start() if i + 1 < len(matches) else len(text)
+            section = text[start:end].strip()
+            if section:
+                chunks.append(section)
+        return chunks
 ```
+- **Kết quả trên baseline (3 tài liệu trên):** `warranty-seller-general-tiki` → 9 chunk (avg 365.3 ký tự), `warranty-seller-fbt-tiki` → 3 chunk (avg 545.7), `warranty-buyer-shopee` → 5 chunk (avg 577.8). Ít chunk hơn hẳn 3 chiến lược kia nhưng mỗi chunk là **một đơn vị chính sách hoàn chỉnh**, không cắt dở.
+- **Chạy thử 5 câu benchmark (mục 3) với `HeadingChunker` + `_mock_embed`, so với baseline "1 file = 1 Document" (không chunk):**
+
+| | Top-1 đúng | Có gold trong top-3 |
+|---|---|---|
+| Baseline (không chunk, `REPORT_CANHAN.md` mục 5) | 1/5 | 2/5 |
+| `HeadingChunker` (23 chunk cho 5 file) | **3/5** | **4/5** |
+
+  Chi tiết: câu 1 (filter buyer), 3 (FBT), 4 (Dropship) đúng top-1; câu 2 (general-tiki) có gold ở top-2; chỉ câu 5 (SD) vẫn miss hoàn toàn.
+- **⚠️ Diễn giải — đừng vội kết luận "heading chunking thắng vì hiểu ngữ nghĩa":** `_mock_embed` băm MD5 toàn bộ chuỗi ký tự, không có khái niệm từ/ngữ nghĩa dù chunk to hay nhỏ. Một phần cải thiện 1/5→3/5 rất có thể chỉ là hiệu ứng thống kê: tách 5 tài liệu thành 23 chunk độc lập nghĩa là có **nhiều lượt "rút thăm" hơn**, nên xác suất một chunk đúng tình cờ có điểm dot-product cao hơn cũng tăng theo, không hẳn vì chunk nhỏ "đúng ngữ nghĩa" hơn. Muốn kết luận chắc chắn heading-chunking có lợi thật, cần chạy lại đúng bảng so sánh này với một embedder ngữ nghĩa thật (`LocalEmbedder`/`OpenAIEmbedder`/`GeminiEmbedder`) — việc này để lại cho các thành viên còn lại khi họ thêm chiến lược của mình.
 
 **Thành viên 2 — [Tên]**
 - **Loại chiến lược:**
@@ -87,12 +127,12 @@ Chạy `ChunkingStrategyComparator().compare()` trên 2-3 tài liệu:
 
 | Thành viên | Chiến lược (Strategy) | Điểm truy xuất (/10) | Điểm mạnh | Điểm yếu |
 |-----------|----------|----------------------|-----------|----------|
-| | | | | |
+| Ngô Lê Thuỳ Tiên | `HeadingChunker` (theo `##`/`###`) | 3/5 top-1, 4/5 top-3 (trên `_mock_embed`) | Giữ nguyên vẹn từng điều khoản; ít chunk hơn nên dễ đọc lại khi debug; cải thiện rõ so với baseline không chunk | Chunk to nhỏ không đều (219–1147 ký tự) vì phụ thuộc độ dài mục gốc; nếu 1 heading gộp nhiều ý (như `warranty-seller-fbt-tiki` mục II dài 1147 ký tự) thì vẫn có nguy cơ chunk quá lớn; cải thiện đo được có thể một phần do hiệu ứng thống kê của `_mock_embed`, chưa chắc là do hiểu ngữ nghĩa |
 | | | | | |
 | | | | | |
 
 **Chiến lược nào tốt nhất cho chủ đề này? Tại sao?**
-> *Viết 2-3 câu — đây là phần được đánh giá cao nhất (khả năng suy nghĩ & giải thích):*
+> *Chờ các thành viên còn lại điền chiến lược của họ rồi mới so sánh công bằng — hiện chỉ có 1/3 (tối thiểu) chiến lược được thử.*
 
 ---
 
