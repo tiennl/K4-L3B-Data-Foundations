@@ -11,8 +11,12 @@ class EmbeddingStore:
     """
     A vector store for text chunks.
 
-    Tries to use ChromaDB if available; falls back to an in-memory store.
-    The embedding_fn parameter allows injection of mock embeddings for tests.
+    In-memory only by design (see CP4 notes): no test requires ChromaDB,
+    requirements.txt does not install it, and branching search/delete on
+    an optional dependency that is never actually read from would only
+    add a latent failure mode if chromadb happened to be importable in
+    the grading environment. The embedding_fn parameter allows injection
+    of mock embeddings for tests.
     """
 
     def __init__(
@@ -22,21 +26,8 @@ class EmbeddingStore:
     ) -> None:
         self._embedding_fn = embedding_fn or _mock_embed
         self._collection_name = collection_name
-        self._use_chroma = False
         self._store: list[dict[str, Any]] = []
-        self._collection = None
         self._next_index = 0
-
-        try:
-            import chromadb
-
-            # TODO: initialize chromadb client + collection
-            client = chromadb.Client()
-            self._collection = client.get_or_create_collection(name=collection_name)
-            self._use_chroma = True
-        except Exception:
-            self._use_chroma = False
-            self._collection = None
 
     def _make_record(self, doc: Document) -> dict[str, Any]:
         # TODO: build a normalized stored record for one document
@@ -73,30 +64,17 @@ class EmbeddingStore:
         """
         Embed each document's content and store it.
 
-        For ChromaDB: use collection.add(ids=[...], documents=[...], embeddings=[...])
-        For in-memory: append dicts to self._store
+        Appends one normalized record per Document to self._store.
         """
         # TODO: embed each doc and add to store
         for doc in docs:
-            record = self._make_record(doc)
-            self._store.append(record)
-
-            if self._use_chroma and self._collection is not None:
-                try:
-                    self._collection.add(
-                        ids=[record["id"]],
-                        documents=[record["content"]],
-                        embeddings=[record["embedding"]],
-                        metadatas=[record["metadata"]],
-                    )
-                except Exception:
-                    pass
+            self._store.append(self._make_record(doc))
 
     def search(self, query: str, top_k: int = 5) -> list[dict[str, Any]]:
         """
         Find the top_k most similar documents to query.
 
-        For in-memory: compute dot product of query embedding vs all stored embeddings.
+        Computes dot product of query embedding vs all stored embeddings.
         """
         # TODO: embed query, compute similarities, return top_k
         return self._search_records(query, self._store, top_k)
