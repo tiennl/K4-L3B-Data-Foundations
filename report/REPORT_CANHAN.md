@@ -1,7 +1,7 @@
 # Báo Cáo Cá Nhân — Lab 7: Embedding & Vector Store
 
-**Họ tên:** [Tên sinh viên] — điền tên thật trước khi nộp
-**Nhóm:** [Tên nhóm] — điền tên nhóm trước khi nộp
+**Họ tên:** Ngô Lê Thuỷ Tiên
+**Nhóm:** T040
 **Ngày:** 2026-09-20
 
 > **Nộp 1 bản / sinh viên.** Phần nhóm (lựa chọn tài liệu, thiết kế chiến lược, bộ câu hỏi đánh giá, demo) nộp chung 1 bản trong `REPORT_NHOM.md`. Chi tiết thang điểm: `docs/SCORING.md`.
@@ -155,8 +155,6 @@ Chạy `compute_similarity()` (dùng `_mock_embed`, backend mặc định của 
 ## 5. Kết quả truy xuất của tôi (Competition Results) — Cá nhân (10 điểm)
 
 Chạy **5 câu hỏi đánh giá của nhóm** trên mã nguồn cá nhân của bạn trong gói `src`. **5 câu hỏi này phải trùng với các thành viên cùng nhóm** (xem `REPORT_NHOM.md`).
-
-> ⚠️ Đây là bộ 5 câu hỏi **đề xuất** dựa trên corpus `data/warranty-policy/` (5 tài liệu bảo hành, xem `REPORT_NHOM.md` mục 1) — nhóm cần thống nhất/xác nhận lại bộ câu hỏi cuối cùng trong `REPORT_NHOM.md` mục 6 và mọi thành viên chạy lại đúng bộ đó. Mỗi tài liệu được nạp làm **1 Document nguyên bản** (không chunk nhỏ) với `EmbeddingStore(embedding_fn=_mock_embed)`, giống cách `main.py` demo — vì bảng dưới nhằm minh hoạ hạn chế của `_mock_embed` (mục 4), Giai đoạn 2 mới là lúc so sánh chiến lược chunking thật.
 
 | # | Câu hỏi (Query) | Top-1 Chunk truy xuất được (tóm tắt) | Điểm Score | Có liên quan không? (Relevant) | Câu trả lời của Agent (tóm tắt) |
 |---|-------|--------------------------------|-------|-----------|------------------------|

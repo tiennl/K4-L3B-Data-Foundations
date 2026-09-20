@@ -14,10 +14,10 @@
 
 ### Chủ đề (Domain) & Lý Do Chọn
 
-**Chủ đề:** Chính sách bảo hành sản phẩm trên sàn thương mại điện tử (ràng buộc bắt buộc của lớp L3B, xem `K4_VARIANT.md`) — thu hẹp vào đúng "bảo hành" (không lấy đổi trả/hoàn tiền/tranh chấp) để corpus tập trung một chủ đề duy nhất.
+**Chủ đề:** Chính sách bảo hành sản phẩm trên sàn thương mại điện tử (seller-warranty-policy)
 
 **Tại sao nhóm chọn chủ đề này?**
-> Bảo hành là điểm giao thoa rõ nhất giữa nghĩa vụ Người Bán và quyền lợi Người Mua trên sàn TMĐT — mỗi bên có tài liệu riêng với mốc thời gian, mức phạt cụ thể, rất phù hợp để kiểm tra `metadata_filter` theo `audience`. Nhóm chọn 2 sàn (Shopee cho phía người mua, Tiki cho phía người bán qua Học viện Tiki dành cho Nhà Bán) vì đây là hai nguồn chính thức duy nhất tìm được có nội dung server-side rendered (không rỗng do JavaScript) và đủ chi tiết số liệu.
+> Bảo hành là điểm giao thoa rõ nhất giữa nghĩa vụ Người Bán và quyền lợi Người Mua trên sàn TMĐT, mỗi bên có tài liệu riêng với mốc thời gian, mức phạt cụ thể, rất phù hợp để kiểm tra `metadata_filter` theo `audience`. Nhóm chọn 2 sàn (Shopee cho phía người mua, Tiki cho phía người bán qua Học viện Tiki dành cho Nhà Bán) vì đây là hai nguồn chính thức duy nhất tìm được có nội dung server-side rendered (không rỗng do JavaScript) và đủ chi tiết số liệu.
 
 ### Danh sách tài liệu (Data Inventory)
 
