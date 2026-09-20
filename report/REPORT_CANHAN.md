@@ -1,7 +1,9 @@
 # Báo Cáo Cá Nhân — Lab 7: Embedding & Vector Store
 
 **Họ tên:** Ngô Lê Thuỷ Tiên
+
 **Nhóm:** Skynet
+
 **Ngày:** 2026-09-20
 
 > **Nộp 1 bản / sinh viên.** Phần nhóm (lựa chọn tài liệu, thiết kế chiến lược, bộ câu hỏi đánh giá, demo) nộp chung 1 bản trong `REPORT_NHOM.md`. Chi tiết thang điểm: `docs/SCORING.md`.
@@ -172,7 +174,11 @@ Chạy **5 câu hỏi đánh giá của nhóm** trên mã nguồn cá nhân củ
 > 3/5 câu hỏi (câu 2, 4, 5) truy xuất trật hoàn toàn dù kho chỉ có vỏn vẹn 5 tài liệu — tệ hơn xác suất ngẫu nhiên (top-3/5 tài liệu lẽ ra phải "trúng" ~60% theo lý thuyết nếu chọn ngẫu nhiên). Nguyên nhân kép: (1) `_mock_embed` không mang ngữ nghĩa (đã thấy rõ ở mục 4), và (2) 4/5 tài liệu đều là hướng dẫn xử lý bảo hành của Tiki cho 3 mô hình vận hành khác nhau (FBT/Dropship/SD) — dùng chung rất nhiều từ vựng ("Nhà Bán", "bảo hành", "ngày làm việc") nên ngay cả một embedder từ-khóa đơn giản cũng khó phân biệt; cần một embedder ngữ nghĩa thật và/hoặc chunk theo heading (tách rõ từng mô hình vận hành) mới có cơ hội truy đúng.
 
 **Điều hay nhất tôi học được từ thành viên khác / nhóm khác (qua demo):**
-> *(Bỏ ngỏ — phần này chỉ điền được sau buổi so sánh trong nhóm ở Giai đoạn 2, bước "Chạy Đánh Giá & So Sánh Trong Nhóm".)*
+- **Backend embedding quyết định nhiều hơn chiến lược chunking.** Cùng một `SentenceChunker`, điểm nhảy từ 1/10 với MockEmbedder lên 6/10 với Nemotron — khớp đúng điều tôi tự đo được ở mục 4: `_mock_embed` chỉ là "vân tay" của chuỗi ký tự, nên mọi kết luận về chunking rút ra trên mock đều không đáng tin.
+- **So sánh chỉ có nghĩa khi mọi biến số khác được giữ cố định:** chung corpus, chung 5 câu hỏi, chung backend, chung cách chấm. Gom tất cả chiến lược về một harness duy nhất là điều kiện tiên quyết, không phải chi tiết kỹ thuật phụ.
+- **Ranh giới heading nên đi kèm trần kích thước.** `HeadingChunker` thuần của tôi phải nhờ metadata filter mới lên 8/10 (7/10 khi không filter), trong khi bản heading có fallback recursive đạt 8/10 ngay cả khi không filter. Chunk của tôi trung bình 525,17 ký tự — dài nhất nhóm — nên một mục chính sách dài bị dồn nhiều ý vào cùng một vector và bị pha loãng.
+- **"Lựa chọn an toàn" không tự động là lựa chọn đúng.** `RecursiveChunker` là default tổng quát hợp lý nhưng lại thấp nhất trên corpus này (3/10, lên 4/10 sau filter). Chiến lược nên bám cấu trúc thật của tài liệu — ở đây heading chính là ranh giới điều khoản — chứ không chọn theo thói quen.
+
 
 ---
 
@@ -184,5 +190,5 @@ Chạy **5 câu hỏi đánh giá của nhóm** trên mã nguồn cá nhân củ
 | Hướng tiếp cận của tôi (My Approach) | 10 / 10 |
 | Hoàn thiện code (Core Implementation — tests) | 30 / 30 (42/42 test pass) |
 | Dự đoán độ tương tự (Similarity Predictions) | 5 / 5 |
-| Kết quả truy xuất của tôi (Competition Results) | 6 / 10 — retrieval tự thân sai nhiều (2/5 đúng) nhưng đã chạy đủ, phân tích đúng nguyên nhân; **cần chấm lại** sau khi nhóm chốt bộ 5 câu hỏi chính thức trong `REPORT_NHOM.md` |
-| **Tổng phần cá nhân** | **56 / 60** (tạm tính, chờ chốt câu hỏi nhóm) |
+| Kết quả truy xuất của tôi (Competition Results) | 6 / 10 — chạy trên mã nguồn cá nhân với MockEmbedder: retrieval sai nhiều (2/5 đúng) nhưng đã chạy đủ 5 câu hỏi và phân tích đúng nguyên nhân |
+| **Tổng phần cá nhân** | **56 / 60** |

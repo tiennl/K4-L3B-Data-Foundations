@@ -2,7 +2,11 @@
 
 **Nhóm:** Skynet
 
-**Thành viên:** Phùng Trọng Chiến (`2A202602430`, thành viên 1); Ngô Lê Thuỳ Tiên (`2A202602614`, thành viên 2); Nguyễn Khánh Linh (`2A202602409`, thành viên 3); Nguyễn Hồng Khoa (`2A202602534`, thành viên 4)
+**Thành viên:**
+- Phùng Trọng Chiến (`2A202602430`, thành viên 1)
+- Ngô Lê Thuỳ Tiên (`2A202602614`, thành viên 2)
+- Nguyễn Khánh Linh (`2A202602409`, thành viên 3)
+- Nguyễn Hồng Khoa (`2A202602534`, thành viên 4)
 
 **Ngày:** 2026-09-20
 
