@@ -104,11 +104,13 @@ Chạy `ChunkingStrategyComparator().compare()` trên 2-3 tài liệu:
 
 | # | Câu hỏi (Query) | Câu trả lời chuẩn (Gold Answer) | Chunk nào chứa thông tin? |
 |---|-------|-------------------------------|--------------------------|
-| 1 | | | |
-| 2 | | | |
-| 3 | | | |
-| 4 | | | |
-| 5 | | | |
+| 1 | Người mua cần chuẩn bị giấy tờ gì để được bảo hành miễn phí trên Shopee? *(cần `metadata_filter={"audience": "buyer"}` — nếu không lọc, câu hỏi dễ bị 4 tài liệu phía seller "lấn" vì cùng dùng từ "bảo hành")* | Có hóa đơn điện tử (khi Người Mua có yêu cầu) hoặc mã đơn hàng (ID đơn hàng); sản phẩm còn trong thời hạn bảo hành và lỗi do nhà sản xuất; riêng đồ điện gia dụng cần phiếu/tem bảo hành còn nguyên vẹn. | `warranty-buyer-shopee.md`, mục "1. Điều kiện bảo hành" |
+| 2 | Nếu Nhà Bán trên Tiki không xác nhận phương án xử lý bảo hành trong 2 ngày làm việc thì Tiki xử lý thế nào? | Tiki chủ động xử lý theo yêu cầu của khách hàng (hoàn tiền hoặc tạo đơn hàng mới để đổi hàng), đồng thời có quyền từ chối tiếp nhận các khiếu nại về đơn hàng liên quan của Nhà Bán phát sinh sau thời hạn này. | `warranty-seller-general-tiki.md`, "Câu 4" |
+| 3 | Theo mô hình FBT, nếu hàng hóa bảo hành không đủ điều kiện nhập kho thì Nhà Bán có bao nhiêu ngày để rút hàng? | 32 ngày làm việc kể từ khi phiếu trả hàng được Tiki tạo. | `warranty-seller-fbt-tiki.md`, mục "II. Quy trình xử lý yêu cầu bảo hành FBT" (Bước 1–2) |
+| 4 | Ở mô hình Dropship, nếu Nhà Bán từ chối xử lý đổi–trả–bảo hành thì phải cung cấp bằng chứng hợp lệ trong bao lâu? | Trong vòng 02 ngày làm việc kể từ khi nhận được yêu cầu hoàn tiền hoặc kể từ khi nhận sản phẩm từ đối tác vận chuyển (bằng chứng gồm biên bản bàn giao, biên bản đồng kiểm, hình ảnh/video đóng gói). | `warranty-seller-dropship-tiki.md`, mục "I. Quy định chung" |
+| 5 | Ở mô hình SD, nếu Nhà Bán từ chối phương án xử lý, Tiki mất bao lâu để xác minh và ra quyết định cuối cùng? | 02–07 ngày làm việc (Tiki kiểm tra, xác minh chứng cứ/biên bản trước khi quyết định). | `warranty-seller-sd-tiki.md`, mục "II. Quy trình xử lý yêu cầu bảo hành" |
+
+> Đã chạy thử cả 5 câu trên corpus thật với `_mock_embed` (xem `REPORT_CANHAN.md` mục 5) — kết quả: câu 1 (có filter) đúng ngay top-1; câu 3 đúng nhưng ở top-2; câu 2, 4, 5 **hoàn toàn không** có tài liệu đúng trong top-3 dù store chỉ có 5 tài liệu. Đây chính là "chất liệu" cho phần Failure Analysis (mục dưới) — nguyên nhân là `_mock_embed` không mang ngữ nghĩa (băm MD5) cộng với việc 4/5 tài liệu seller dùng chung rất nhiều từ vựng ("Nhà Bán", "bảo hành", "ngày làm việc"). Mỗi thành viên chạy lại đúng 5 câu này với chiến lược chunking + embedder riêng của mình để so sánh cải thiện được bao nhiêu so với baseline này.
 
 ### Tổng hợp chất lượng truy xuất của nhóm
 
