@@ -1,7 +1,7 @@
 # Báo Cáo Cá Nhân — Lab 7: Embedding & Vector Store
 
 **Họ tên:** Ngô Lê Thuỷ Tiên
-**Nhóm:** T040
+**Nhóm:** Skynet
 **Ngày:** 2026-09-20
 
 > **Nộp 1 bản / sinh viên.** Phần nhóm (lựa chọn tài liệu, thiết kế chiến lược, bộ câu hỏi đánh giá, demo) nộp chung 1 bản trong `REPORT_NHOM.md`. Chi tiết thang điểm: `docs/SCORING.md`.
@@ -168,7 +168,7 @@ Chạy **5 câu hỏi đánh giá của nhóm** trên mã nguồn cá nhân củ
 
 **Bao nhiêu câu hỏi trả về chunk có liên quan trong top-3?** **2** / 5 (câu 1 và câu 3; câu 3 chỉ ở hạng 2 chứ không phải top-1)
 
-**Phân tích nhanh (đầy đủ hơn ở `REPORT_NHOM.md` mục 7 — Failure Analysis):**
+**Phân tích nhanh (đầy đủ hơn ở `REPORT_NHOM.md` mục 3 — Failure analysis):**
 > 3/5 câu hỏi (câu 2, 4, 5) truy xuất trật hoàn toàn dù kho chỉ có vỏn vẹn 5 tài liệu — tệ hơn xác suất ngẫu nhiên (top-3/5 tài liệu lẽ ra phải "trúng" ~60% theo lý thuyết nếu chọn ngẫu nhiên). Nguyên nhân kép: (1) `_mock_embed` không mang ngữ nghĩa (đã thấy rõ ở mục 4), và (2) 4/5 tài liệu đều là hướng dẫn xử lý bảo hành của Tiki cho 3 mô hình vận hành khác nhau (FBT/Dropship/SD) — dùng chung rất nhiều từ vựng ("Nhà Bán", "bảo hành", "ngày làm việc") nên ngay cả một embedder từ-khóa đơn giản cũng khó phân biệt; cần một embedder ngữ nghĩa thật và/hoặc chunk theo heading (tách rõ từng mô hình vận hành) mới có cơ hội truy đúng.
 
 **Điều hay nhất tôi học được từ thành viên khác / nhóm khác (qua demo):**
