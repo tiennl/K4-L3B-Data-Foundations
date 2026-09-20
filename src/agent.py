@@ -32,7 +32,9 @@ class KnowledgeBaseAgent:
 
         prompt = (
             "Answer the question using ONLY the context below. "
-            "If the context doesn't contain the answer, say so.\n\n"
+            "If the context doesn't contain the answer, say so — do not make anything up. "
+            "Cite the bracketed source number(s) (e.g. [1]) for every claim you use, "
+            "so the answer can be traced back to the exact chunk it came from.\n\n"
             f"Context:\n{context}\n\n"
             f"Question: {question}\n"
             "Answer:"
